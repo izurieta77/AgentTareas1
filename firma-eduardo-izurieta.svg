@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1050" height="600" viewBox="0 0 1050 600">
+  <style> text { font-family: 'DejaVu Sans','FreeSans',sans-serif; } </style>
+  <rect x="0" y="0" width="1050" height="600" fill="#ffffff"/>
+  <rect x="0" y="0" width="392" height="600" fill="#0b0b0b"/>
+  <rect x="392" y="0" width="6" height="600" fill="#9a9a9a"/>
+
+  <text x="196" y="252" text-anchor="middle" fill="#ffffff" font-size="46" font-weight="bold" letter-spacing="5">ASTURVENT</text>
+  <line x1="96" y1="280" x2="296" y2="280" stroke="#ffffff" stroke-width="1.2"/>
+  <text x="196" y="316" text-anchor="middle" fill="#d8d8d8" font-size="19" letter-spacing="2">Silencio · Confort</text>
+  <text x="196" y="344" text-anchor="middle" fill="#d8d8d8" font-size="19" letter-spacing="2">Kömmerling</text>
+  <text x="196" y="392" text-anchor="middle" fill="#8f8f8f" font-size="13" letter-spacing="1">Tecnología alemana</text>
+
+  <text x="448" y="168" fill="#111111" font-size="42" font-weight="bold">Eduardo Izurieta</text>
+  <text x="450" y="204" fill="#555555" font-size="23" letter-spacing="1">Asistente del CEO</text>
+  <line x1="450" y1="232" x2="1002" y2="232" stroke="#e2e2e2" stroke-width="1.4"/>
+
+  <text x="450" y="300" font-size="22" fill="#8a8a8a">Cel.</text>
+  <text x="600" y="300" font-size="22" fill="#1d1d1d">55 4797 7723</text>
+  <text x="450" y="348" font-size="22" fill="#8a8a8a">Correo</text>
+  <text x="600" y="348" font-size="22" fill="#1d1d1d">izurieta77@gmail.com</text>
+  <text x="450" y="396" font-size="22" fill="#8a8a8a">Web</text>
+  <text x="600" y="396" font-size="22" fill="#1d1d1d">asturvent-web.netlify.app</text>
+
+  <line x1="450" y1="452" x2="1002" y2="452" stroke="#e2e2e2" stroke-width="1.4"/>
+  <text x="450" y="492" fill="#333333" font-size="19" font-weight="bold">Puertas y Ventanas de Asturias, S.A. de C.V.</text>
+  <text x="450" y="520" fill="#777777" font-size="14">Distribuidor oficial Kömmerling México</text>
+</svg>
