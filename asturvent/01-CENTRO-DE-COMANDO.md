@@ -106,12 +106,13 @@ El nicho es de **alto poder adquisitivo** (cliente que entiende inversión, no p
 
 ## 7. ⏳ Pendiente de implementación en el SITIO (para que la clave se autollene)
 
-Para que la clave **«b2b client by E.Izu»** aparezca sola al dar click (y los leads lleguen a **+52 55 4797 7723**), el botón de WhatsApp del sitio debe apuntar a:
+Para que la clave **«b2b client by E.Izu»** aparezca sola al dar click (y los leads de campaña lleguen a **+52 55 4797 7723**):
 
-```
-https://wa.me/525547977723?text=b2b%20client%20by%20E.Izu
-```
-
-- Esto hay que cambiarlo en el **código del sitio** (`asturvent-web`), no en estos documentos.
-- Si me das acceso a ese repositorio, lo dejo aplicado y desplegado en Netlify.
+- **Botón/CTA principal de campaña** (el hero "Cotizar" / botón flotante de WhatsApp que reciben los anuncios) → cambiar a:
+  ```
+  https://wa.me/525547977723?text=b2b%20client%20by%20E.Izu
+  ```
+- **Número público (+52 722 421 5439)** → se queda igual en contacto/footer, sin clave.
+- Esto se cambia en el **código del sitio** (`asturvent-web`), no en estos documentos.
+- **Acción:** el jefe dará acceso al repo `asturvent-web` para que yo lo deje aplicado y desplegado en Netlify.
 - Mientras tanto, los prompts y captions ya están listos y NO le piden al cliente escribir la clave a mano.

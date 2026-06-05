@@ -23,7 +23,9 @@
 3. **Código rastreador de leads:** **«b2b client by E.Izu»** — **se autollena solo cuando el cliente da click al botón de WhatsApp del sitio** (no se le pide que lo escriba). Así sabes que ese lead vino de la web/campaña.
 4. **Instagram** (`@asturvent`): canal secundario suave, NUNCA el CTA principal.
 
-> **Nota operativa:** el sitio muestra públicamente su número de contacto; para esta campaña, el botón de WhatsApp del sitio debe apuntar a **+52 55 4797 7723** con el texto **`b2b client by E.Izu`** pre-cargado. (Ver pendiente de implementación en el sitio, sección final.)
+> **Nota operativa (decisión del jefe):**
+> - **Número público del sitio = +52 722 421 5439** → se queda igual en contacto/footer, SIN clave.
+> - **Botón/CTA de campaña = +52 55 4797 7723** → es el que reciben los anuncios y el contenido; abre el chat con **`b2b client by E.Izu`** pre-cargado. Así todo lo rastreado llega a tu número directo y el resto al número público. (Ver pendiente de implementación en el sitio, en el Centro de Comando §7.)
 
 > El sitio se promociona PRIMERO. Instagram después. Cada click debe terminar en WhatsApp para cotizar — pero solo después de que vieron el sitio.
 
