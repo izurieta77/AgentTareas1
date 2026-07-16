@@ -39,6 +39,13 @@ docs/                   # Guía paso a paso, walkthrough, planes y diagrama
 # 1. Dependencias
 pip install -r requirements.txt      # runtime (google-genai, qdrant-client, fastapi, ...)
 pip install -r requirements-dev.txt  # desarrollo (pytest, ruff)
+pip install -r requirements-eval.txt # opcional: evaluación RAGAS (/api/v1/eval/run)
+# Nota: la evaluación RAGAS hace ~40-70 llamadas a Gemini (10 preguntas x 4 métricas).
+# El tier gratuito de gemini-3.5-flash (20 peticiones/día) no es suficiente: usa una
+# clave con facturación activada o reduce el golden dataset.
+
+# Nota: sentence-transformers necesita PyTorch. Sin GPU, instala antes la versión CPU
+# (mucho más ligera): pip install torch --index-url https://download.pytorch.org/whl/cpu
 
 # 2. Configuración
 cp .env.example .env                 # añadir GEMINI_API_KEY y ajustar la caché semántica

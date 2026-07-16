@@ -1,0 +1,8 @@
+# Dependencias opcionales para la evaluación RAGAS (endpoint /api/v1/eval/run
+# y playground/run_evaluation.py). No son necesarias para el runtime ni el CI.
+ragas
+pandas
+datasets
+langchain-google-vertexai
+instructor[google-genai]
+jsonref
