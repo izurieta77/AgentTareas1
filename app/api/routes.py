@@ -91,7 +91,9 @@ async def query_rag(
         )
         
         # 3. Registrar en la caché semántica para futuras consultas
-        cache.update(request.query, result)
+        # (solo respuestas válidas: cachear errores del LLM envenenaría la caché)
+        if not result.get("generation_failed"):
+            cache.update(request.query, result)
         
         return QueryResponse(
             query=result["query"],

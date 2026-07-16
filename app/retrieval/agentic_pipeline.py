@@ -118,6 +118,7 @@ class AgenticRAGPipeline:
             "category": category.value,
             "answer": generation_result["answer"],
             "sources": generation_result["sources"],
+            "generation_failed": generation_result.get("generation_failed", False),
             "pipeline_trace": {
                 "retrieved_chunks": len(parents),
                 "use_hyde": use_hyde,

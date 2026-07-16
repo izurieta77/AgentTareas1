@@ -99,12 +99,14 @@ class GroundedGenerator:
             return {
                 "answer": answer,
                 "used_contexts": [c.id for c in contexts],
-                "sources": sources
+                "sources": sources,
+                "generation_failed": False
             }
-            
+
         except Exception as e:
             return {
                 "answer": f"Error crítico al generar la respuesta mediante el LLM: {str(e)}",
                 "used_contexts": [c.id for c in contexts],
-                "sources": sources
+                "sources": sources,
+                "generation_failed": True
             }
