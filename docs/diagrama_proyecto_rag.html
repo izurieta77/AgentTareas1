@@ -1,0 +1,1230 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sistema RAG Industrial — Diagrama Conceptual</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg:       #f0f4f8;
+      --surface:  #ffffff;
+      --card:     #ffffff;
+      --border:   #dde3ed;
+      --glow-1:   #0284c7;
+      --glow-2:   #7c3aed;
+      --amber:    #d97706;
+      --green:    #059669;
+      --red:      #dc2626;
+      --text:     #0f172a;
+      --muted:    #64748b;
+      --tag:      #e0f0ff;
+      --tag-txt:  #0369a1;
+      --radius:   16px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ─── Background grid ─── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image:
+        linear-gradient(rgba(14,165,233,.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(14,165,233,.06) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ─── Soft orbs ─── */
+    .orb { position: fixed; border-radius: 50%; filter: blur(140px); pointer-events: none; z-index: 0; }
+    .orb-1 { width: 600px; height: 600px; background: radial-gradient(circle, rgba(14,165,233,.09) 0%, transparent 70%); top: -150px; left: -150px; }
+    .orb-2 { width: 500px; height: 500px; background: radial-gradient(circle, rgba(139,92,246,.07) 0%, transparent 70%); bottom: -100px; right: -100px; }
+
+    /* ─── Layout ─── */
+    .wrapper {
+      position: relative; z-index: 1;
+      max-width: 1300px; margin: 0 auto;
+      padding: 2.5rem 2rem 4rem;
+    }
+
+    /* ─── Header ─── */
+    header {
+      text-align: center;
+      margin-bottom: 3.5rem;
+      animation: fadeDown .7s ease both;
+    }
+    .badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(2,132,199,.08); border: 1px solid rgba(2,132,199,.25);
+      color: var(--glow-1); padding: 6px 16px; border-radius: 40px;
+      font-size: .78rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase;
+      margin-bottom: 1.2rem;
+    }
+    .badge-dot { width: 7px; height: 7px; background: var(--green); border-radius: 50%; box-shadow: 0 0 6px var(--green); animation: blink 2s infinite; }
+    header h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(1.8rem, 4vw, 3rem); font-weight: 700;
+      background: linear-gradient(135deg, #0f172a 0%, #0284c7 50%, #7c3aed 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text; line-height: 1.2; margin-bottom: .8rem;
+    }
+    header p {
+      color: var(--muted); font-size: 1rem; max-width: 640px; margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    /* ─── Pipeline legend ─── */
+    .legend {
+      display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap;
+      margin-bottom: 3rem;
+    }
+    .legend-item {
+      display: flex; align-items: center; gap: 8px;
+      font-size: .8rem; color: var(--muted);
+    }
+    .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+
+    /* ─── Section label ─── */
+    .section-label {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: .7rem; font-weight: 700; letter-spacing: .15em;
+      text-transform: uppercase; color: var(--muted);
+      text-align: center; margin-bottom: 1.2rem;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .section-label::before, .section-label::after {
+      content: ''; flex: 1; height: 1px; background: var(--border);
+    }
+
+    /* ─── Phase row ─── */
+    .phase-row {
+      display: grid; gap: 1rem;
+      margin-bottom: 1rem;
+      animation: fadeUp .5s ease both;
+    }
+    .phase-row.cols-3 { grid-template-columns: repeat(3, 1fr); }
+    .phase-row.cols-2 { grid-template-columns: repeat(2, 1fr); }
+    .phase-row.cols-1 { grid-template-columns: 1fr; }
+    @media (max-width: 900px) {
+      .phase-row.cols-3 { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 600px) {
+      .phase-row.cols-3, .phase-row.cols-2 { grid-template-columns: 1fr; }
+    }
+
+    /* ─── Arrow connector ─── */
+    .arrow {
+      display: flex; justify-content: center; align-items: center;
+      height: 44px; gap: 8px; color: var(--muted); font-size: .75rem;
+      margin: .2rem 0; position: relative;
+    }
+    .arrow::before {
+      content: '';
+      position: absolute; top: 0; left: 50%;
+      transform: translateX(-50%);
+      width: 1px; height: calc(100% - 12px);
+      background: linear-gradient(to bottom, var(--border), transparent);
+    }
+    .arrow-head {
+      width: 0; height: 0;
+      border-left: 7px solid transparent;
+      border-right: 7px solid transparent;
+      border-top: 10px solid var(--border);
+      position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+    }
+
+    /* ─── Node card ─── */
+    .node {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem 1.4rem;
+      cursor: pointer;
+      transition: transform .25s, border-color .25s, box-shadow .25s;
+      position: relative;
+      overflow: hidden;
+      user-select: none;
+    }
+    .node::before {
+      content: '';
+      position: absolute; inset: 0;
+      opacity: 0;
+      transition: opacity .3s;
+    }
+    .node:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 36px rgba(15,23,42,.10);
+    }
+    .node:hover::before { opacity: 1; }
+    .node.active {
+      transform: translateY(-2px);
+    }
+
+    /* Color themes per phase — light mode */
+    .node.phase-0 { border-color: rgba(2,132,199,.25); background: linear-gradient(145deg,#fff,#f0f8ff); }
+    .node.phase-0::before { background: radial-gradient(circle at 50% 0%, rgba(2,132,199,.06), transparent 70%); }
+    .node.phase-0:hover, .node.phase-0.active { border-color: #0284c7; box-shadow: 0 8px 28px rgba(2,132,199,.18); }
+
+    .node.phase-1 { border-color: rgba(124,58,237,.22); background: linear-gradient(145deg,#fff,#faf5ff); }
+    .node.phase-1::before { background: radial-gradient(circle at 50% 0%, rgba(124,58,237,.06), transparent 70%); }
+    .node.phase-1:hover, .node.phase-1.active { border-color: #7c3aed; box-shadow: 0 8px 28px rgba(124,58,237,.16); }
+
+    .node.phase-2 { border-color: rgba(217,119,6,.25); background: linear-gradient(145deg,#fff,#fffbeb); }
+    .node.phase-2::before { background: radial-gradient(circle at 50% 0%, rgba(217,119,6,.06), transparent 70%); }
+    .node.phase-2:hover, .node.phase-2.active { border-color: #d97706; box-shadow: 0 8px 28px rgba(217,119,6,.18); }
+
+    .node.phase-3 { border-color: rgba(5,150,105,.25); background: linear-gradient(145deg,#fff,#f0fdf4); }
+    .node.phase-3::before { background: radial-gradient(circle at 50% 0%, rgba(5,150,105,.06), transparent 70%); }
+    .node.phase-3:hover, .node.phase-3.active { border-color: #059669; box-shadow: 0 8px 28px rgba(5,150,105,.18); }
+
+    .node.phase-4 { border-color: rgba(220,38,38,.22); background: linear-gradient(145deg,#fff,#fff1f2); }
+    .node.phase-4::before { background: radial-gradient(circle at 50% 0%, rgba(220,38,38,.06), transparent 70%); }
+    .node.phase-4:hover, .node.phase-4.active { border-color: #dc2626; box-shadow: 0 8px 28px rgba(220,38,38,.16); }
+
+    .node.phase-5 { border-color: rgba(234,88,12,.22); background: linear-gradient(145deg,#fff,#fff7ed); }
+    .node.phase-5::before { background: radial-gradient(circle at 50% 0%, rgba(234,88,12,.06), transparent 70%); }
+    .node.phase-5:hover, .node.phase-5.active { border-color: #ea580c; box-shadow: 0 8px 28px rgba(234,88,12,.16); }
+
+    .node.phase-6 { border-color: rgba(99,102,241,.22); background: linear-gradient(145deg,#fff,#eef2ff); }
+    .node.phase-6::before { background: radial-gradient(circle at 50% 0%, rgba(99,102,241,.06), transparent 70%); }
+    .node.phase-6:hover, .node.phase-6.active { border-color: #6366f1; box-shadow: 0 8px 28px rgba(99,102,241,.16); }
+
+    /* Node internals */
+    .node-header {
+      display: flex; align-items: flex-start; gap: 12px;
+      margin-bottom: .9rem;
+    }
+    .node-icon {
+      width: 40px; height: 40px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem; flex-shrink: 0;
+    }
+    .node-meta { flex: 1; }
+    .node-number {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: .68rem; color: var(--muted); margin-bottom: 2px;
+    }
+    .node-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: .97rem; font-weight: 600; line-height: 1.3;
+    }
+    .node-subtitle {
+      font-size: .75rem; color: var(--muted); margin-top: 2px;
+    }
+    .node-tags {
+      display: flex; flex-wrap: wrap; gap: 6px;
+      margin-bottom: .9rem;
+    }
+    .tag {
+      background: var(--tag); color: var(--tag-txt);
+      padding: 3px 10px; border-radius: 20px;
+      font-size: .68rem; font-weight: 500;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .node-hint {
+      font-size: .72rem; color: var(--muted);
+      display: flex; align-items: center; gap: 5px;
+      margin-top: .4rem;
+    }
+    .chevron {
+      width: 16px; height: 16px; border-radius: 50%;
+      background: #e2e8f0; display: inline-flex;
+      align-items: center; justify-content: center;
+      font-size: .6rem; color: var(--muted);
+      transition: transform .3s;
+    }
+    .node.active .chevron { transform: rotate(180deg); }
+
+    /* ─── Panel ─── */
+    .panel-overlay {
+      display: none;
+      position: fixed; inset: 0; z-index: 100;
+      background: rgba(15,23,42,.35); backdrop-filter: blur(8px);
+    }
+    .panel-overlay.open { display: flex; align-items: center; justify-content: center; }
+
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      width: min(780px, 94vw);
+      max-height: 88vh;
+      overflow-y: auto;
+      padding: 2rem;
+      position: relative;
+      animation: panelIn .3s cubic-bezier(.16,1,.3,1) both;
+    }
+    .panel-close {
+      position: sticky; top: 0; float: right;
+      background: #f1f5f9; border: 1px solid var(--border);
+      color: var(--muted); border-radius: 8px;
+      padding: 4px 12px; font-size: .8rem; cursor: pointer;
+      margin-bottom: 1rem; transition: background .2s;
+    }
+    .panel-close:hover { background: #e2e8f0; color: var(--text); }
+
+    .panel-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 4px 14px; border-radius: 30px;
+      font-size: .72rem; font-weight: 700; letter-spacing: .08em;
+      text-transform: uppercase; margin-bottom: 1rem;
+    }
+    .panel h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.5rem; font-weight: 700;
+      margin-bottom: .5rem; line-height: 1.3;
+    }
+    .panel .panel-intro {
+      color: var(--muted); font-size: .92rem; line-height: 1.7;
+      margin-bottom: 1.6rem; padding-bottom: 1.4rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .panel h3 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1rem; font-weight: 600;
+      color: var(--text); margin-bottom: .6rem; margin-top: 1.4rem;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .panel h3::before {
+      content: ''; display: block; width: 4px; height: 14px;
+      border-radius: 4px; flex-shrink: 0;
+    }
+    .panel p { font-size: .9rem; color: var(--muted); line-height: 1.75; margin-bottom: .8rem; }
+    .panel ul { padding-left: 1.2rem; margin-bottom: .8rem; }
+    .panel ul li { font-size: .88rem; color: var(--muted); margin-bottom: .4rem; line-height: 1.6; }
+    .panel ul li strong { color: var(--text); }
+
+    .panel-metrics {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: .8rem; margin: 1rem 0;
+    }
+    .metric-box {
+      background: #f8fafc; border: 1px solid var(--border);
+      border-radius: 12px; padding: .9rem 1rem;
+    }
+    .metric-box .metric-val {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.4rem; font-weight: 700; margin-bottom: 2px;
+    }
+    .metric-box .metric-lbl {
+      font-size: .72rem; color: var(--muted);
+    }
+
+    .code-tag {
+      display: inline-block; background: #e0f2fe;
+      border: 1px solid rgba(2,132,199,.2);
+      color: #0369a1; padding: 2px 9px; border-radius: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: .75rem; margin: 2px;
+    }
+
+    .flow-chips {
+      display: flex; flex-wrap: wrap; gap: 6px; margin: .6rem 0;
+    }
+    .flow-chip {
+      display: flex; align-items: center; gap: 5px;
+      background: #f8fafc; border: 1px solid #dde3ed;
+      padding: 5px 12px; border-radius: 20px;
+      font-size: .75rem; color: var(--text);
+    }
+    .flow-chip-arrow { color: #94a3b8; }
+
+    /* Scrollbar */
+    .panel::-webkit-scrollbar { width: 6px; }
+    .panel::-webkit-scrollbar-track { background: #f1f5f9; }
+    .panel::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 6px; }
+
+    /* ─── Mini map ─── */
+    .minimap {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.5rem;
+      margin-top: 3rem;
+      animation: fadeUp .5s .3s ease both;
+    }
+    .minimap-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: .85rem; font-weight: 700; color: var(--muted);
+      letter-spacing: .1em; text-transform: uppercase;
+      margin-bottom: 1.2rem;
+    }
+    .minimap-track {
+      display: flex; gap: 0; overflow-x: auto; padding-bottom: .5rem;
+    }
+    .minimap-step {
+      display: flex; align-items: center; flex-shrink: 0;
+    }
+    .minimap-dot {
+      width: 36px; height: 36px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .8rem; font-weight: 700; cursor: pointer;
+      border: 2px solid; transition: transform .2s, box-shadow .2s;
+      font-family: 'Space Grotesk', sans-serif;
+    }
+    .minimap-dot:hover { transform: scale(1.15); }
+    .minimap-line { width: 40px; height: 2px; flex-shrink: 0; }
+    .minimap-label {
+      font-size: .65rem; color: var(--muted); text-align: center;
+      max-width: 60px; margin-top: 4px; line-height: 1.3;
+    }
+    .minimap-col { display: flex; flex-direction: column; align-items: center; }
+
+    /* ─── Footer ─── */
+    footer {
+      text-align: center; margin-top: 3rem;
+      color: var(--muted); font-size: .75rem; line-height: 2;
+    }
+    footer span { color: var(--glow-1); }
+
+    /* ─── Animations ─── */
+    @keyframes fadeDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeUp   { from { opacity: 0; transform: translateY(20px);  } to { opacity: 1; transform: translateY(0); } }
+    @keyframes panelIn  { from { opacity: 0; transform: scale(.93);        } to { opacity: 1; transform: scale(1);    } }
+    @keyframes blink    { 0%,100% { opacity: 1; } 50% { opacity: .3; } }
+
+    /* Delay cascades */
+    .phase-row:nth-child(1) { animation-delay: .1s; }
+    .phase-row:nth-child(2) { animation-delay: .2s; }
+    .phase-row:nth-child(3) { animation-delay: .3s; }
+    .phase-row:nth-child(4) { animation-delay: .4s; }
+    .phase-row:nth-child(5) { animation-delay: .5s; }
+    .phase-row:nth-child(6) { animation-delay: .6s; }
+    .phase-row:nth-child(7) { animation-delay: .7s; }
+  </style>
+</head>
+<body>
+
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+
+<div class="wrapper">
+
+  <!-- ─── HEADER ─── -->
+  <header>
+    <div class="badge"><span class="badge-dot"></span> Sistema en producción · MÓDULO 9</div>
+    <h1>RAG Industrial de Alta Precisión</h1>
+    <p>Diagrama conceptual interactivo del pipeline Enterprise de Retrieval-Augmented Generation para entornos industriales e I+D. Pulsa cualquier nodo para explorar sus detalles.</p>
+  </header>
+
+  <!-- Legend -->
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:#0ea5e9"></div>Arquitectura Base</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#8b5cf6"></div>Ingestión Offline</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#f59e0b"></div>Indexado e Metadatos</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#10b981"></div>Retrieval Online</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#ef4444"></div>Orquestación Agéntica</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#fb923c"></div>Producción</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#6366f1"></div>Evaluación CI/CD</div>
+  </div>
+
+  <!-- ══════════════════════════════════════ -->
+  <!--       OFFLINE INGESTION PIPELINE       -->
+  <!-- ══════════════════════════════════════ -->
+  <div class="section-label">⬇ Fase Offline — Ingestión e Indexación</div>
+
+  <div class="phase-row cols-1">
+    <div class="node phase-0" onclick="openPanel('arch')" id="node-arch">
+      <div class="node-header">
+        <div class="node-icon" style="background:rgba(14,165,233,.15)">🏭</div>
+        <div class="node-meta">
+          <div class="node-number">PUNTO 1 · ARQUITECTURA</div>
+          <div class="node-title">Evaluación del Desafío & Arquitectura de Referencia Agentic RAG</div>
+          <div class="node-subtitle">Por qué falla el Naive RAG en entornos industriales y la solución modular</div>
+        </div>
+      </div>
+      <div class="node-tags">
+        <span class="tag">Agentic RAG</span>
+        <span class="tag">HNSW</span>
+        <span class="tag">BM25 + Dense</span>
+        <span class="tag">Semantic Cache</span>
+        <span class="tag">Multi-project RBAC</span>
+      </div>
+      <div class="node-hint">Pulsa para ver detalles <span class="chevron">▾</span></div>
+    </div>
+  </div>
+
+  <div class="arrow"><div class="arrow-head"></div></div>
+
+  <div class="phase-row cols-3">
+    <div class="node phase-1" onclick="openPanel('llamaparse')" id="node-llamaparse">
+      <div class="node-header">
+        <div class="node-icon" style="background:rgba(139,92,246,.15)">📄</div>
+        <div class="node-meta">
+          <div class="node-number">FASE 1 · PIPELINE 1</div>
+          <div class="node-title">Parsing Enterprise</div>
+          <div class="node-subtitle">LlamaParse + Unstructured.io</div>
+        </div>
+      </div>
+      <div class="node-tags">
+        <span class="tag">LlamaParse</span>
+        <span class="tag">by_title</span>
+        <span class="tag">Markdown</span>
+      </div>
+      <div class="node-hint">Pulsa para ver detalles <span class="chevron">▾</span></div>
+    </div>
+
+    <div class="node phase-1" onclick="openPanel('images')" id="node-images">
+      <div class="node-header">
+        <div class="node-icon" style="background:rgba(139,92,246,.15)">🖼️</div>
+        <div class="node-meta">
+          <div class="node-number">FASE 1 · PIPELINE 2</div>
+          <div class="node-title">Tratamiento Multimodal</div>
+          <div class="node-subtitle">Gemini 2.5 Pro + Bounding Boxes</div>
+        </div>
+      </div>
+      <div class="node-tags">
+        <span class="tag">Gemini Vision</span>
+        <span class="tag">Alt-text</span>
+        <span class="tag">BBox</span>
+      </div>
+      <div class="node-hint">Pulsa para ver detalles <span class="chevron">▾</span></div>
+    </div>
+
+    <div class="node phase-1" onclick="openPanel('parentchild')" id="node-parentchild">
+      <div class="node-header">
+        <div class="node-icon" style="background:rgba(139,92,246,.15)">🌲</div>
+        <div class="node-meta">
+          <div class="node-number">FASE 1 · PIPELINE 3</div>
+          <div class="node-title">Chunking Jerárquico</div>
+          <div class="node-subtitle">Estrategia Parent-Child (Multi-Vector)</div>
+        </div>
+      </div>
+      <div class="node-tags">
+        <span class="tag">Parent 1024t</span>
+        <span class="tag">Child 256t</span>
+        <span class="tag">Overlap 15%</span>
+      </div>
+      <div class="node-hint">Pulsa para ver detalles <span class="chevron">▾</span></div>
+    </div>
+  </div>
+
+  <div class="arrow"><div class="arrow-head"></div></div>
+
+  <div class="phase-row cols-1">
+    <div class="node phase-2" onclick="openPanel('metadata')" id="node-metadata">
+      <div class="node-header">
+        <div class="node-icon" style="background:rgba(245,158,11,.15)">🏷️</div>
+        <div class="node-meta">
+          <div class="node-number">FASE 2 · PIPELINE 4</div>
+          <div class="node-title">Enriquecimiento de Metadatos & Diseño del Índice Vectorial Qdrant con Pre-filtrado RBAC</div>
+          <div class="node-subtitle">Extracción automatizada con gpt-4o-mini · Structured Outputs · Pre-filtrado determinista HNSW</div>
+        </div>
+      </div>
+      <div class="node-tags">
+        <span class="tag">project_id</span>
+        <span class="tag">confidentiality ENUM</span>
+        <span class="tag">doc_type</span>
+        <span class="tag">version</span>
+        <span class="tag">RBAC Pre-filter</span>
+        <span class="tag">Qdrant HNSW</span>
+      </div>
+      <div class="node-hint">Pulsa para ver detalles <span class="chevron">▾</span></div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════ -->
+  <!--       ONLINE RETRIEVAL PIPELINE        -->
+  <!-- ══════════════════════════════════════ -->
+  <div class="arrow" style="margin-top:1rem"><div class="arrow-head"></div></div>
+  <div class="section-label" style="margin-top:.5rem">⚡ Fase Online — Query Time · Inferencia en Tiempo Real</div>
+
+  <div class="phase-row cols-1">
+    <div class="node phase-3" onclick="openPanel('retrieval')" id="node-retrieval">
+      <div class="node-header">
+        <div class="node-icon" style="background:rgba(16,185,129,.15)">🔍</div>
+        <div class="node-meta">
+          <div class="node-number">FASE 3 · PIPELINE 5</div>
+          <div class="node-title">Retrieval Avanzado e Híbrido en Dos Etapas: Alta Sensibilidad → Alta Precisión</div>
+          <div class="node-subtitle">HyDE · Multi-Query · BM25 + Qdrant Dense · RRF Fusion · Cohere Cross-Encoder Rerank</div>
+        </div>
+      </div>
+      <div class="node-tags">
+        <span class="tag">HyDE</span>
+        <span class="tag">Multi-Query</span>
+        <span class="tag">BM25 Sparse</span>
+        <span class="tag">Dense 3072d</span>
+        <span class="tag">RRF Top-50</span>
+        <span class="tag">Cohere Rerank</span>
+        <span class="tag">Precision@5</span>
+      </div>
+      <div class="node-hint">Pulsa para ver detalles <span class="chevron">▾</span></div>
+    </div>
+  </div>
+
+  <div class="arrow"><div class="arrow-head"></div></div>
+
+  <div class="phase-row cols-1">
+    <div class="node phase-4" onclick="openPanel('agentic')" id="node-agentic">
+      <div class="node-header">
+        <div class="node-icon" style="background:rgba(239,68,68,.15)">🤖</div>
+        <div class="node-meta">
+          <div class="node-number">FASE 4 · PIPELINE 6</div>
+          <div class="node-title">Orquestación Agéntica & Generación Grounded — Anti-Alucinaciones</div>
+          <div class="node-subtitle">Router LLM → Compresión contextual LLMLingua → Generador T=0.0 con citas inline obligatorias</div>
+        </div>
+      </div>
+      <div class="node-tags">
+        <span class="tag">Agentic Router</span>
+        <span class="tag">LLMLingua -60%</span>
+        <span class="tag">Temp 0.0</span>
+        <span class="tag">Citas inline</span>
+        <span class="tag">Conflict detect</span>
+        <span class="tag">Lost-in-Middle fix</span>
+      </div>
+      <div class="node-hint">Pulsa para ver detalles <span class="chevron">▾</span></div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════ -->
+  <!--         PRODUCTION LAYER               -->
+  <!-- ══════════════════════════════════════ -->
+  <div class="arrow"><div class="arrow-head"></div></div>
+  <div class="section-label" style="margin-top:.5rem">🚀 Fase 5 — Producción: Cache, Sync & Deploy</div>
+
+  <div class="phase-row cols-2">
+    <div class="node phase-5" onclick="openPanel('cache')" id="node-cache">
+      <div class="node-header">
+        <div class="node-icon" style="background:rgba(251,146,60,.15)">⚡</div>
+        <div class="node-meta">
+          <div class="node-number">FASE 5A · PIPELINE 7</div>
+          <div class="node-title">Caché Semántica Vectorial</div>
+          <div class="node-subtitle">Redis Vector Search · Umbral τ ≥ 0.94</div>
+        </div>
+      </div>
+      <div class="node-tags">
+        <span class="tag">Redis</span>
+        <span class="tag">Cosine ≥0.94</span>
+        <span class="tag">&lt;15ms hit</span>
+        <span class="tag">-40% cost</span>
+      </div>
+      <div class="node-hint">Pulsa para ver detalles <span class="chevron">▾</span></div>
+    </div>
+
+    <div class="node phase-5" onclick="openPanel('sync')" id="node-sync">
+      <div class="node-header">
+        <div class="node-icon" style="background:rgba(251,146,60,.15)">🔄</div>
+        <div class="node-meta">
+          <div class="node-number">FASE 5B · PIPELINE 8</div>
+          <div class="node-title">Indexación Incremental</div>
+          <div class="node-subtitle">Record Manager Ledger · SHA-256 · SQLite</div>
+        </div>
+      </div>
+      <div class="node-tags">
+        <span class="tag">SHA-256</span>
+        <span class="tag">SQLite Ledger</span>
+        <span class="tag">Tombstoning</span>
+        <span class="tag">Zero downtime</span>
+      </div>
+      <div class="node-hint">Pulsa para ver detalles <span class="chevron">▾</span></div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════ -->
+  <!--         EVALUATION & CI/CD             -->
+  <!-- ══════════════════════════════════════ -->
+  <div class="arrow"><div class="arrow-head"></div></div>
+  <div class="section-label">🧪 Fase 6 — Evaluación Automatizada & Quality Gate CI/CD</div>
+
+  <div class="phase-row cols-1">
+    <div class="node phase-6" onclick="openPanel('ragas')" id="node-ragas">
+      <div class="node-header">
+        <div class="node-icon" style="background:rgba(99,102,241,.15)">📊</div>
+        <div class="node-meta">
+          <div class="node-number">FASE 6 · PIPELINE 9</div>
+          <div class="node-title">Framework RAGAS — LLM-as-a-Judge · Golden Dataset · CI/CD Gatekeeping</div>
+          <div class="node-subtitle">Faithfulness ≥0.95 · Context Precision · Context Recall · Answer Relevancy — Bloqueo automático de despliegues</div>
+        </div>
+      </div>
+      <div class="node-tags">
+        <span class="tag">RAGAS</span>
+        <span class="tag">Faithfulness ≥0.95</span>
+        <span class="tag">Context Precision</span>
+        <span class="tag">Context Recall</span>
+        <span class="tag">Answer Relevancy</span>
+        <span class="tag">120 Golden Qs</span>
+        <span class="tag">CI/CD exit(0/1)</span>
+      </div>
+      <div class="node-hint">Pulsa para ver detalles <span class="chevron">▾</span></div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════ -->
+  <!--         NEXT STEPS                     -->
+  <!-- ══════════════════════════════════════ -->
+  <div class="arrow"><div class="arrow-head"></div></div>
+  <div class="section-label">🗺️ Hoja de Ruta — Próximos Pasos</div>
+
+  <div class="phase-row cols-3">
+    <div class="node phase-0" onclick="openPanel('docker')" id="node-docker">
+      <div class="node-header">
+        <div class="node-icon" style="background:rgba(14,165,233,.15)">🐳</div>
+        <div class="node-meta">
+          <div class="node-number">RUTA 1</div>
+          <div class="node-title">Dockerización</div>
+          <div class="node-subtitle">Qdrant + Redis Stack</div>
+        </div>
+      </div>
+      <div class="node-tags"><span class="tag">docker-compose</span><span class="tag">HNSW persistent</span></div>
+      <div class="node-hint">Pulsa para ver detalles <span class="chevron">▾</span></div>
+    </div>
+
+    <div class="node phase-0" onclick="openPanel('fastapi')" id="node-fastapi">
+      <div class="node-header">
+        <div class="node-icon" style="background:rgba(14,165,233,.15)">🌐</div>
+        <div class="node-meta">
+          <div class="node-number">RUTA 2</div>
+          <div class="node-title">API + Dashboard</div>
+          <div class="node-subtitle">FastAPI · Frontend industrial</div>
+        </div>
+      </div>
+      <div class="node-tags"><span class="tag">FastAPI</span><span class="tag">RBAC</span><span class="tag">CORS</span></div>
+      <div class="node-hint">Pulsa para ver detalles <span class="chevron">▾</span></div>
+    </div>
+
+    <div class="node phase-0" onclick="openPanel('langgraph')" id="node-langgraph">
+      <div class="node-header">
+        <div class="node-icon" style="background:rgba(14,165,233,.15)">🕸️</div>
+        <div class="node-meta">
+          <div class="node-number">RUTA 3</div>
+          <div class="node-title">LangGraph Agéntico</div>
+          <div class="node-subtitle">Grafo de estado · MÓDULO 10</div>
+        </div>
+      </div>
+      <div class="node-tags"><span class="tag">StateGraph</span><span class="tag">Human-in-loop</span></div>
+      <div class="node-hint">Pulsa para ver detalles <span class="chevron">▾</span></div>
+    </div>
+  </div>
+
+  <!-- ─── MINIMAP ─── -->
+  <div class="minimap">
+    <div class="minimap-title">📍 Mapa del Pipeline Completo — Haz clic en cada nodo</div>
+    <div class="minimap-track">
+      <div class="minimap-step">
+        <div class="minimap-col">
+          <div class="minimap-dot" style="background:rgba(14,165,233,.15);border-color:#0ea5e9;color:#0ea5e9" onclick="openPanel('arch')">🏭</div>
+          <div class="minimap-label">Arquitectura</div>
+        </div>
+        <div class="minimap-line" style="background:linear-gradient(90deg,#0ea5e9,#8b5cf6)"></div>
+      </div>
+      <div class="minimap-step">
+        <div class="minimap-col">
+          <div class="minimap-dot" style="background:rgba(139,92,246,.15);border-color:#8b5cf6;color:#a78bfa" onclick="openPanel('llamaparse')">📄</div>
+          <div class="minimap-label">Parsing</div>
+        </div>
+        <div class="minimap-line" style="background:#8b5cf6"></div>
+      </div>
+      <div class="minimap-step">
+        <div class="minimap-col">
+          <div class="minimap-dot" style="background:rgba(139,92,246,.15);border-color:#8b5cf6;color:#a78bfa" onclick="openPanel('images')">🖼️</div>
+          <div class="minimap-label">Imágenes</div>
+        </div>
+        <div class="minimap-line" style="background:#8b5cf6"></div>
+      </div>
+      <div class="minimap-step">
+        <div class="minimap-col">
+          <div class="minimap-dot" style="background:rgba(139,92,246,.15);border-color:#8b5cf6;color:#a78bfa" onclick="openPanel('parentchild')">🌲</div>
+          <div class="minimap-label">Chunking</div>
+        </div>
+        <div class="minimap-line" style="background:linear-gradient(90deg,#8b5cf6,#f59e0b)"></div>
+      </div>
+      <div class="minimap-step">
+        <div class="minimap-col">
+          <div class="minimap-dot" style="background:rgba(245,158,11,.15);border-color:#f59e0b;color:#f59e0b" onclick="openPanel('metadata')">🏷️</div>
+          <div class="minimap-label">Metadatos</div>
+        </div>
+        <div class="minimap-line" style="background:linear-gradient(90deg,#f59e0b,#10b981)"></div>
+      </div>
+      <div class="minimap-step">
+        <div class="minimap-col">
+          <div class="minimap-dot" style="background:rgba(16,185,129,.15);border-color:#10b981;color:#10b981" onclick="openPanel('retrieval')">🔍</div>
+          <div class="minimap-label">Retrieval</div>
+        </div>
+        <div class="minimap-line" style="background:linear-gradient(90deg,#10b981,#ef4444)"></div>
+      </div>
+      <div class="minimap-step">
+        <div class="minimap-col">
+          <div class="minimap-dot" style="background:rgba(239,68,68,.15);border-color:#ef4444;color:#ef4444" onclick="openPanel('agentic')">🤖</div>
+          <div class="minimap-label">Agente</div>
+        </div>
+        <div class="minimap-line" style="background:linear-gradient(90deg,#ef4444,#fb923c)"></div>
+      </div>
+      <div class="minimap-step">
+        <div class="minimap-col">
+          <div class="minimap-dot" style="background:rgba(251,146,60,.15);border-color:#fb923c;color:#fb923c" onclick="openPanel('cache')">⚡</div>
+          <div class="minimap-label">Cache</div>
+        </div>
+        <div class="minimap-line" style="background:#fb923c"></div>
+      </div>
+      <div class="minimap-step">
+        <div class="minimap-col">
+          <div class="minimap-dot" style="background:rgba(251,146,60,.15);border-color:#fb923c;color:#fb923c" onclick="openPanel('sync')">🔄</div>
+          <div class="minimap-label">Sync</div>
+        </div>
+        <div class="minimap-line" style="background:linear-gradient(90deg,#fb923c,#6366f1)"></div>
+      </div>
+      <div class="minimap-step">
+        <div class="minimap-col">
+          <div class="minimap-dot" style="background:rgba(99,102,241,.15);border-color:#6366f1;color:#6366f1" onclick="openPanel('ragas')">📊</div>
+          <div class="minimap-label">RAGAS</div>
+        </div>
+        <div class="minimap-line" style="background:linear-gradient(90deg,#6366f1,#0ea5e9)"></div>
+      </div>
+      <div class="minimap-step">
+        <div class="minimap-col">
+          <div class="minimap-dot" style="background:rgba(14,165,233,.15);border-color:#0ea5e9;color:#0ea5e9" onclick="openPanel('docker')">🐳</div>
+          <div class="minimap-label">Deploy</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p>Sistema RAG Industrial — Enterprise Grade · MÓDULO 9 · Retrieval-Augmented Generation</p>
+    <p>Tecnologías: <span>LangChain · LlamaParse · Qdrant · Redis · Cohere · OpenAI · RAGAS · FastAPI · LangGraph</span></p>
+  </footer>
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!--                PANEL OVERLAY                 -->
+<!-- ════════════════════════════════════════════ -->
+<div class="panel-overlay" id="overlay" onclick="closeOnOverlay(event)">
+  <div class="panel" id="panel">
+    <button class="panel-close" onclick="closePanel()">✕ Cerrar</button>
+    <div id="panel-content"></div>
+  </div>
+</div>
+
+<script>
+// ─── Panel data ───────────────────────────────────────────────────────────────
+const panels = {
+
+  arch: {
+    badge: { text: 'Punto 1 · Arquitectura Base', color: '#0ea5e9', bg: 'rgba(14,165,233,.15)' },
+    title: 'Evaluación del Desafío y Arquitectura Agentic RAG',
+    intro: 'Un pipeline RAG convencional falla catastróficamente en entornos industriales multiproyecto por tres razones de negocio críticas. Esta sección establece la arquitectura modular y agéntica que resuelve estos problemas estructurales.',
+    sections: [
+      {
+        icon: '⚠️', title: '¿Por qué falla el Naive RAG?', color: '#ef4444',
+        content: `<ul>
+          <li><strong>La "Gran Confusión de Proyectos":</strong> La búsqueda semántica sin aislamiento confunde especificaciones del Proyecto Helios V2 con las del Proyecto Ares, generando piezas fuera de tolerancia en planta.</li>
+          <li><strong>Tablas e Información Estructural:</strong> El chunking ciego rompe las tablas de datos, convirtiendo filas con torques y dimensiones críticas en texto ilegible para el embedding.</li>
+          <li><strong>Vocabulario Planta vs. Oficina:</strong> Un código de alarma exacto como "E-104" o "VALV-XJ900" pierde su significado en un embedding denso, mientras que BM25 lo localiza perfectamente.</li>
+        </ul>`
+      },
+      {
+        icon: '🏗️', title: 'Arquitectura Propuesta: Agentic RAG Modular', color: '#0ea5e9',
+        content: `
+        <div class="flow-chips">
+          <div class="flow-chip">📥 Docs Técnicos</div><div class="flow-chip-arrow">→</div>
+          <div class="flow-chip">🔧 LlamaParse</div><div class="flow-chip-arrow">→</div>
+          <div class="flow-chip">🌲 Chunking P/C</div><div class="flow-chip-arrow">→</div>
+          <div class="flow-chip">🏷️ Metadatos</div><div class="flow-chip-arrow">→</div>
+          <div class="flow-chip">🗄️ Qdrant Vector DB</div>
+        </div>
+        <div class="flow-chips" style="margin-top:.6rem">
+          <div class="flow-chip">👤 Usuario</div><div class="flow-chip-arrow">→</div>
+          <div class="flow-chip">⚡ Caché Semántica</div><div class="flow-chip-arrow">→</div>
+          <div class="flow-chip">🤖 Router Agente</div><div class="flow-chip-arrow">→</div>
+          <div class="flow-chip">🔍 Retrieval Híbrido</div><div class="flow-chip-arrow">→</div>
+          <div class="flow-chip">✂️ Compresión</div><div class="flow-chip-arrow">→</div>
+          <div class="flow-chip">💬 GPT-4o / Claude</div>
+        </div>
+        <p style="margin-top:.8rem">El sistema distingue automáticamente entre tres perfiles de usuario: <strong>Operario de Planta</strong> (latencia &lt;500ms, BM25 exacto), <strong>Investigador I+D</strong> (recall máximo, HyDE activo) e <strong>Ingeniero de Producto</strong> (filtro estricto por versión y tablas de especificaciones).</p>`
+      }
+    ]
+  },
+
+  llamaparse: {
+    badge: { text: 'Fase 1 · Pipeline 1', color: '#8b5cf6', bg: 'rgba(139,92,246,.15)' },
+    title: 'Pipeline de Parsing Enterprise (LlamaParse + Unstructured.io)',
+    intro: 'Los PDFs técnicos industriales contienen tablas densas, planos y jerarquías de títulos que los loaders convencionales destruyen al convertirlo todo a texto plano. Esta fase implementa un parsing de alta fidelidad que preserva la estructura semántica completa.',
+    sections: [
+      {
+        icon: '🔧', title: 'Componentes del Pipeline', color: '#8b5cf6',
+        content: `<ul>
+          <li><strong>LlamaParse (Parsing Visual):</strong> API LLM-nativa que interpreta la maquetación de PDFs complejos, devolviendo Markdown de alta fidelidad donde las tablas se extraen perfectamente con sus celdas intactas y jerarquías de encabezados H1/H2/H3 preservadas.</li>
+          <li><strong>Unstructured.io (Chunking Semántico):</strong> En lugar de divisores de texto ciegos, parsea el Markdown en objetos estructurales (Title, Table, NarrativeText, ListItem) y aplica la estrategia <span class="code-tag">by_title</span>: abre un nuevo chunk cada vez que detecta un título, evitando mezclas de secciones.</li>
+        </ul>`
+      },
+      {
+        icon: '📂', title: 'Salidas del Pipeline', color: '#10b981',
+        content: `<ul>
+          <li><strong>[Nombre]_parsed.md:</strong> Markdown de verificación visual donde las tablas aparecen en formato Markdown intacto (| columna | valor |).</li>
+          <li><strong>[Nombre]_chunks.json:</strong> JSON estructurado con cada chunk enriquecido con jerarquía completa (section_h1, section_h2), páginas, is_table y text_content. 100% compatible con MultiVectorRetriever de LangChain.</li>
+        </ul>
+        <p>Parámetros CLI configurables: <span class="code-tag">--pdf_path</span> <span class="code-tag">--max_chars 1500</span> <span class="code-tag">--overlap 150</span> <span class="code-tag">--language es</span></p>`
+      }
+    ]
+  },
+
+  images: {
+    badge: { text: 'Fase 1 · Pipeline 2', color: '#8b5cf6', bg: 'rgba(139,92,246,.15)' },
+    title: 'Pipeline de Tratamiento Multimodal de Imágenes',
+    intro: 'Los planos, diagramas de flujo, esquemas de montaje e interfaces de paneles de control en manuales industriales son ignorados completamente por un RAG convencional. Este pipeline los extrae, describe e indexa junto al texto usando visión computacional.',
+    sections: [
+      {
+        icon: '📸', title: 'Flujo de Procesamiento Visual', color: '#8b5cf6',
+        content: `
+        <div class="flow-chips">
+          <div class="flow-chip">PDF Técnico</div><div class="flow-chip-arrow">→</div>
+          <div class="flow-chip">LlamaParse JSON</div><div class="flow-chip-arrow">→</div>
+          <div class="flow-chip">Bounding Boxes (x,y,w,h)</div><div class="flow-chip-arrow">→</div>
+          <div class="flow-chip">Descarga PIL</div><div class="flow-chip-arrow">→</div>
+          <div class="flow-chip">Gemini 2.5 Pro</div><div class="flow-chip-arrow">→</div>
+          <div class="flow-chip">Alt-text técnico</div><div class="flow-chip-arrow">→</div>
+          <div class="flow-chip">Inyección en chunk</div>
+        </div>
+        <p style="margin-top:.8rem">Gemini genera para cada figura: tipo de gráfica/esquema, valores numéricos y etiquetas exactas, flujo operativo y conexiones, y un resumen semántico optimizado para búsqueda vectorial.</p>`
+      },
+      {
+        icon: '💡', title: 'Beneficio en el Sistema RAG', color: '#10b981',
+        content: `<ul>
+          <li><strong>Búsqueda Semántica Optimizada:</strong> Si un operario pregunta "¿Dónde se ilustra la parada por torque de 55 Nm?", el alt-text incrustado permite recuperar el chunk con total precisión.</li>
+          <li><strong>Razonamiento Grounded:</strong> El LLM recibe la descripción exacta del plano con sus Bounding Boxes, pudiendo citar: "Como se muestra en la figura de la Pág. 2 [x:120, y:340]...".</li>
+          <li><strong>Modo Dry-Run:</strong> Valida la lógica completa sin consumir créditos de API con el flag <span class="code-tag">--dry_run</span>.</li>
+        </ul>`
+      }
+    ]
+  },
+
+  parentchild: {
+    badge: { text: 'Fase 1 · Pipeline 3', color: '#8b5cf6', bg: 'rgba(139,92,246,.15)' },
+    title: 'Chunking Jerárquico Parent-Child (Multi-Vector Retriever)',
+    intro: 'Existe un conflicto de diseño fundamental en RAG: los embeddings se calculan mejor en chunks pequeños (alta precisión), pero el LLM necesita chunks grandes para comprender el contexto técnico completo (seguridad, advertencias, limitaciones). El patrón Parent-Child resuelve esta tensión.',
+    sections: [
+      {
+        icon: '🌲', title: 'Arquitectura Desacoplada', color: '#8b5cf6',
+        content: `<ul>
+          <li><strong>Chunks Padres (1024–2048 tokens):</strong> Almacenados en un Key-Value Store persistente (Redis / PostgreSQL). Conservan el contexto sistémico completo con jerarquías y alt-text de imágenes.</li>
+          <li><strong>Chunks Hijos (128–256 tokens):</strong> Vectorizados e indexados en Qdrant para búsqueda HNSW rápida. Cada hijo lleva la clave <span class="code-tag">parent_id</span> (UUID criptográfico) que lo enlaza inequívocamente con su padre.</li>
+          <li><strong>Overlap del 15%:</strong> Garantiza la preservación del contexto transicional en las fronteras de corte entre hijos contiguos.</li>
+        </ul>`
+      },
+      {
+        icon: '🔄', title: 'Flujo de Recuperación (Hidratación)', color: '#10b981',
+        content: `
+        <div class="flow-chips">
+          <div class="flow-chip">Consulta de Usuario</div><div class="flow-chip-arrow">→</div>
+          <div class="flow-chip">Búsqueda HNSW en Hijos</div><div class="flow-chip-arrow">→</div>
+          <div class="flow-chip">IDs de hijos similares</div><div class="flow-chip-arrow">→</div>
+          <div class="flow-chip">Lookup parent_id en KV Store</div><div class="flow-chip-arrow">→</div>
+          <div class="flow-chip">Chunks Padres hidratados al LLM</div>
+        </div>
+        <p style="margin-top:.8rem">El MultiVectorRetriever de LangChain orquesta este proceso garantizando que no existan huérfanos y que la interfaz <span class="code-tag">get_relevant_documents()</span> sea transparente para el resto del pipeline.</p>`
+      }
+    ]
+  },
+
+  metadata: {
+    badge: { text: 'Fase 2 · Pipeline 4', color: '#f59e0b', bg: 'rgba(245,158,11,.15)' },
+    title: 'Enriquecimiento de Metadatos & Pre-filtrado RBAC',
+    intro: 'En sistemas RAG corporativos multiproyecto, el aislamiento de información es crítico. Sin metadatos estructurados y pre-filtrado determinista, un manual del Proyecto Helios V1 puede contaminar los resultados del Proyecto Ares V2, generando fallos físicos de manufactura.',
+    sections: [
+      {
+        icon: '📋', title: 'Esquema de Metadatos Tipados', color: '#f59e0b',
+        content: `<ul>
+          <li><strong>project_id</strong> (STRING): Aísla las consultas al proyecto I+D activo. Ej: <span class="code-tag">PRJ-HELIOS-2025</span></li>
+          <li><strong>product_line</strong> (STRING): Filtra por maquinaria específica. Ej: <span class="code-tag">EXTRUDER-LINE-3</span></li>
+          <li><strong>doc_type</strong> (ENUM): <span class="code-tag">PRD</span> <span class="code-tag">SOP</span> <span class="code-tag">MAINTENANCE_LOG</span> <span class="code-tag">PATENT</span> <span class="code-tag">MANUAL</span></li>
+          <li><strong>confidentiality</strong> (ENUM): <span class="code-tag">PUBLIC</span> <span class="code-tag">INTERNAL</span> <span class="code-tag">RESTRICTED</span> <span class="code-tag">TOP_SECRET</span></li>
+          <li><strong>version</strong> (STRING): Evita recuperar especificaciones descontinuadas. Ej: <span class="code-tag">V2.1.0</span></li>
+          <li><strong>creation_timestamp</strong> (INTEGER): Ordenación y obsolescencia temporal.</li>
+        </ul>
+        <p>Extracción automatizada mediante <span class="code-tag">gpt-4o-mini</span> con Structured Outputs / JSON Schema durante la ingesta.</p>`
+      },
+      {
+        icon: '🛡️', title: 'Pre-filtrado vs. Post-filtrado', color: '#ef4444',
+        content: `<ul>
+          <li><strong>❌ Post-filtrado (INADMISIBLE):</strong> Recupera Top-K del universo completo y luego descarta. Si los 10 primeros resultados semánticos pertenecen al Proyecto Ares y buscas Helios → 0 documentos → el LLM dice "No poseo información" aunque existen cientos de docs válidos.</li>
+          <li><strong>✅ Pre-filtrado Determinista (Enterprise):</strong> El filtro <span class="code-tag">project == PRJ-HELIOS AND confidentiality &lt;= RESTRICTED</span> se aplica ANTES de calcular distancias vectoriales. Qdrant combina índices de bitmap con el grafo HNSW para garantizar que el Top-K completo pertenezca al dominio correcto.</li>
+        </ul>`
+      }
+    ]
+  },
+
+  retrieval: {
+    badge: { text: 'Fase 3 · Pipeline 5', color: '#10b981', bg: 'rgba(16,185,129,.15)' },
+    title: 'Retrieval Avanzado e Híbrido en Dos Etapas',
+    intro: 'La búsqueda vectorial ingenua comete errores en dos extremos: no encuentra códigos exactos de alarma (necesita BM25) y tiene sesgo semántico en las consultas de ingenieros (necesita transformación de query). El pipeline de dos etapas maximiza primero el Recall y luego la Precision.',
+    sections: [
+      {
+        icon: '1️⃣', title: 'Etapa 1: Alta Sensibilidad (Top-50 Recall)', color: '#10b981',
+        content: `<ul>
+          <li><strong>HyDE (Hypothetical Document Embeddings):</strong> gpt-4o-mini genera una respuesta teórica ideal. Se vectoriza esa respuesta hipotética (no la consulta cruda), desplazando el espacio vectorial del usuario al dominio formal de los documentos técnicos.</li>
+          <li><strong>Multi-Query:</strong> Se generan 3 variaciones de la pregunta con terminología industrial alternativa para cubrir vacíos lingüísticos del operario.</li>
+          <li><strong>Dense Retrieval (Qdrant):</strong> Vectores de 3072 dimensiones (text-embedding-3-large) para conceptos abstractos.</li>
+          <li><strong>Sparse Retrieval (BM25):</strong> Indexación invertida exacta para códigos de alarma y modelos de maquinaria.</li>
+          <li><strong>RRF Fusion:</strong> Fusión de ambas listas usando Reciprocal Rank Fusion RRF(d) = Σ 1/(k+r) con k=60, sin depender de escalas de scoring dispares.</li>
+        </ul>`
+      },
+      {
+        icon: '2️⃣', title: 'Etapa 2: Alta Precisión (Top-5 Precision@5)', color: '#0ea5e9',
+        content: `<ul>
+          <li><strong>Cross-Encoder Reranker:</strong> La consulta y cada uno de los 50 candidatos se inyectan JUNTOS en el Transformer. La auto-atención evalúa la correlación átomo a átomo de cada palabra de la pregunta con cada palabra del fragmento.</li>
+          <li><strong>Cohere Rerank v3</strong> (o <span class="code-tag">BAAI/bge-reranker-large</span> local): Reordena los 50 candidatos y entrega un Top-5 de altísima precisión.</li>
+        </ul>
+        <div class="panel-metrics">
+          <div class="metric-box"><div class="metric-val" style="color:#10b981">Top-50</div><div class="metric-lbl">Fase 1 Recall</div></div>
+          <div class="metric-box"><div class="metric-val" style="color:#0ea5e9">Top-5</div><div class="metric-lbl">Fase 2 Precision</div></div>
+          <div class="metric-box"><div class="metric-val" style="color:#f59e0b">3072d</div><div class="metric-lbl">Vector dims</div></div>
+          <div class="metric-box"><div class="metric-val" style="color:#a78bfa">k=60</div><div class="metric-lbl">RRF constante</div></div>
+        </div>`
+      }
+    ]
+  },
+
+  agentic: {
+    badge: { text: 'Fase 4 · Pipeline 6', color: '#ef4444', bg: 'rgba(239,68,68,.15)' },
+    title: 'Orquestación Agéntica & Generación Grounded',
+    intro: 'No todas las consultas deben resolverse por el mismo camino. Un operario con una alarma urgente necesita velocidad; un investigador I+D necesita recall máximo. El agente enrutador clasifica la consulta y activa el pipeline óptimo. El generador opera bajo reglas de seguridad ultra-restrictivas.',
+    sections: [
+      {
+        icon: '🧭', title: 'Enrutamiento Agéntico (3 Rutas)', color: '#ef4444',
+        content: `<ul>
+          <li><strong>🏭 Línea de Producción:</strong> BM25 exacto + Caché Semántica. Latencia &lt;500ms. Para códigos de alarma urgentes como "E-104 extrusora 3".</li>
+          <li><strong>🔬 I+D / Patentes:</strong> HyDE activo + Reranking profundo. Recall máximo. Latencia &lt;3.0s. Para preguntas abstractas sobre materiales o procesos.</li>
+          <li><strong>📐 Especificaciones:</strong> Filtro estricto por doc_type PRD + análisis de tablas Markdown. Latencia &lt;1.5s. Para torques, dimensiones y tolerancias exactas.</li>
+        </ul>`
+      },
+      {
+        icon: '✂️', title: 'Compresión Contextual (Lost in the Middle)', color: '#f59e0b',
+        content: `<p>El Top-5 de chunks padres equivale a ~5,000–8,000 tokens. Inyectarlos directamente diluye la atención del LLM. El compresor:</p>
+        <ul>
+          <li><strong>Protección estructural de tablas:</strong> Los delimitadores | y - nunca se alteran.</li>
+          <li><strong>Remoción de ruido:</strong> Filtra artículos, pronombres y oraciones introductorias.</li>
+          <li><strong>Reducción:</strong> 40%–60% del tamaño del prompt sin pérdida de información técnica.</li>
+        </ul>`
+      },
+      {
+        icon: '🔒', title: 'Reglas del Generador (Anti-Alucinaciones)', color: '#10b981',
+        content: `<ul>
+          <li><strong>Temperatura 0.0:</strong> Elimina la variabilidad creativa del decodificador.</li>
+          <li><strong>Fallback unívoco:</strong> "INFORMACIÓN NO DISPONIBLE EN EL CORPUS DE SEGURIDAD" si el contexto no contiene evidencias exactas.</li>
+          <li><strong>Citas inline obligatorias:</strong> Cada afirmación debe llevar [DOC-ID, pág. X].</li>
+          <li><strong>Detección de conflictos:</strong> Si conviven dos versiones contradictorias del mismo parámetro, el LLM alerta explícitamente con los IDs de proyecto en lugar de elegir uno al azar.</li>
+        </ul>`
+      }
+    ]
+  },
+
+  cache: {
+    badge: { text: 'Fase 5A · Pipeline 7', color: '#fb923c', bg: 'rgba(251,146,60,.15)' },
+    title: 'Caché Semántica Vectorial (Redis Vector Search)',
+    intro: 'En manufactura real, el personal repite consultas recurrentes entre turnos. Una caché de coincidencia exacta de texto es inútil porque "alarma E-104 en Line-3 por sobrecalentamiento" y "Alarma E104 extrusora Line 3 caliente" tienen idéntica intención pero distintos caracteres. La caché semántica opera en el espacio vectorial.',
+    sections: [
+      {
+        icon: '⚡', title: 'Motor de Caché Semántica', color: '#fb923c',
+        content: `
+        <div class="flow-chips">
+          <div class="flow-chip">Consulta de usuario</div><div class="flow-chip-arrow">→</div>
+          <div class="flow-chip">Embedding (3072d)</div><div class="flow-chip-arrow">→</div>
+          <div class="flow-chip">Búsqueda vectorial en caché</div><div class="flow-chip-arrow">→</div>
+          <div class="flow-chip">Cosine ≥ 0.94?</div>
+        </div>
+        <p style="margin-top:.8rem"><strong>Cache HIT:</strong> Respuesta instantánea desde Redis. <strong>Cache MISS:</strong> Ejecuta pipeline RAG completo y registra la respuesta para futuras consultas.</p>`
+      },
+      {
+        icon: '⚖️', title: 'El Umbral de Seguridad Industrial (τ)', color: '#f59e0b',
+        content: `<ul>
+          <li><strong>τ &lt; 0.88 (PELIGROSO):</strong> Podría confundir "Apagar motor Line-3" con "Apagar motor Line-4", sirviendo instrucciones de una máquina en otra → accidentes físicos.</li>
+          <li><strong>τ 0.90–0.93 (Moderado):</strong> Falsos hits entre incidentes en válvulas distintas.</li>
+          <li><strong>τ ≥ 0.94 (GRADO INDUSTRIAL ✅):</strong> Solo aprueba variaciones de redacción del mismo componente y código de alarma.</li>
+        </ul>`
+      },
+      {
+        icon: '💰', title: 'Impacto Económico', color: '#10b981',
+        content: `<div class="panel-metrics">
+          <div class="metric-box"><div class="metric-val" style="color:#10b981">&lt;15ms</div><div class="metric-lbl">Latencia Cache HIT</div></div>
+          <div class="metric-box"><div class="metric-val" style="color:#fb923c">3500ms</div><div class="metric-lbl">Pipeline completo</div></div>
+          <div class="metric-box"><div class="metric-val" style="color:#a78bfa">99.5%</div><div class="metric-lbl">Reducción latencia</div></div>
+          <div class="metric-box"><div class="metric-val" style="color:#f59e0b">-40%</div><div class="metric-lbl">Ahorro en factura API</div></div>
+        </div>`
+      }
+    ]
+  },
+
+  sync: {
+    badge: { text: 'Fase 5B · Pipeline 8', color: '#fb923c', bg: 'rgba(251,146,60,.15)' },
+    title: 'Indexación Incremental con Record Manager Ledger',
+    intro: 'Re-indexar millones de vectores desde cero cada semana es económicamente inviable y genera downtime. El Record Manager implementa un ledger relacional SQLite que audita el estado de cada documento mediante su huella digital SHA-256, procesando únicamente los cambios reales.',
+    sections: [
+      {
+        icon: '📚', title: 'Los 4 Estados de Sincronización', color: '#fb923c',
+        content: `<ul>
+          <li><strong>🟢 ADDED:</strong> El source_id no existe en el ledger → vectorizar e insertar. Registrar hash SHA-256.</li>
+          <li><strong>🟡 UPDATED:</strong> El source_id existe pero el hash cambió → borrado selectivo (tombstoning) de vectores obsoletos por pre-filtro de metadatos + re-indexar nueva versión.</li>
+          <li><strong>⚪ SKIPPED:</strong> El hash es idéntico → ignorar completamente. Coste cero de API. Latencia cero.</li>
+          <li><strong>🔴 DELETED:</strong> El source_id existe en SQLite pero el archivo físico ya no existe → purga atómica de todos sus vectores huérfanos.</li>
+        </ul>`
+      },
+      {
+        icon: '🗄️', title: 'Estructura del Ledger SQLite', color: '#0ea5e9',
+        content: `<ul>
+          <li><span class="code-tag">source_id</span> VARCHAR(255) PRIMARY KEY — Identificador único del archivo.</li>
+          <li><span class="code-tag">file_hash</span> VARCHAR(64) — SHA-256 del contenido del archivo.</li>
+          <li><span class="code-tag">chunks_count</span> INTEGER — Número de fragmentos indexados.</li>
+          <li><span class="code-tag">last_synced</span> TIMESTAMP — Marca temporal del último ciclo.</li>
+        </ul>
+        <p>El servicio de sincronización puede ejecutarse como <strong>daemon nocturno</strong> sin downtime del sistema de inferencia en producción.</p>`
+      }
+    ]
+  },
+
+  ragas: {
+    badge: { text: 'Fase 6 · Pipeline 9', color: '#6366f1', bg: 'rgba(99,102,241,.15)' },
+    title: 'Framework RAGAS — LLM-as-a-Judge & CI/CD Quality Gate',
+    intro: 'Un sistema RAG industrial no puede ir a producción sin validación estadística de no-alucinación. Las métricas léxicas clásicas (BLEU, ROUGE) son peligrosas: dan puntuación alta aunque el LLM cambie "55 Nm" por "50 Nm". RAGAS usa GPT-4o como juez evaluador semántico.',
+    sections: [
+      {
+        icon: '📐', title: 'Las 4 Métricas Core', color: '#6366f1',
+        content: `<ul>
+          <li><strong>Faithfulness (Fidelidad):</strong> ¿Cada afirmación de la respuesta está soportada por el contexto recuperado? Umbral industrial: ≥0.95. Si no se supera → el despliegue se cancela.</li>
+          <li><strong>Answer Relevancy:</strong> ¿La respuesta es concisa y directa? Penaliza rodeos. El evaluador genera 3 preguntas inversas y mide similitud vectorial con la original.</li>
+          <li><strong>Context Precision:</strong> ¿Los chunks más útiles están en las primeras posiciones del Top-K? Evalúa mediante MAP (Mean Average Precision).</li>
+          <li><strong>Context Recall:</strong> ¿Se recuperó toda la información sustantiva necesaria para responder? Compara hechos del Ground Truth vs. contexto recuperado.</li>
+        </ul>`
+      },
+      {
+        icon: '🧪', title: 'Golden Dataset Corporativo (120 preguntas)', color: '#f59e0b',
+        content: `<p>Definido por ingenieros senior y líderes de planta, cubre tres subconjuntos:</p>
+        <ul>
+          <li><strong>Seguridad de Planta:</strong> Límites físicos, alarmas de emergencia, torques máximos.</li>
+          <li><strong>Especificaciones Físicas:</strong> Dimensiones, tolerancias, versiones de componentes.</li>
+          <li><strong>Patentes I+D:</strong> Propiedades de materiales, procesos de desarrollo, comparativas entre proyectos.</li>
+        </ul>
+        <p>Cada entrada incluye <span class="code-tag">question</span>, <span class="code-tag">ground_truth</span>, <span class="code-tag">expected_source</span> y <span class="code-tag">expected_page</span>.</p>`
+      },
+      {
+        icon: '🚦', title: 'Gatekeeping Automático CI/CD', color: '#10b981',
+        content: `<div class="panel-metrics">
+          <div class="metric-box"><div class="metric-val" style="color:#10b981">exit(0)</div><div class="metric-lbl">Faithfulness ≥ 0.95 → Deploy OK</div></div>
+          <div class="metric-box"><div class="metric-val" style="color:#ef4444">exit(1)</div><div class="metric-lbl">Faithfulness &lt; 0.95 → Build FAIL</div></div>
+        </div>
+        <p>Compatible con Jenkins, GitHub Actions y GitLab CI. Si cualquier actualización de prompts, pesos de embedding o modelos baja la fidelidad por debajo del umbral industrial, el despliegue se cancela automáticamente.</p>`
+      }
+    ]
+  },
+
+  docker: {
+    badge: { text: 'Ruta 1 · Próximos Pasos', color: '#0ea5e9', bg: 'rgba(14,165,233,.15)' },
+    title: 'Dockerización e Infraestructura de Planta',
+    intro: 'Para salir de bases de datos en memoria local y directorios temporales, se despliegan las instancias de almacenamiento de grado Enterprise mediante contenedores Docker interconectados.',
+    sections: [
+      {
+        icon: '🐳', title: 'Servicios docker-compose', color: '#0ea5e9',
+        content: `<ul>
+          <li><strong>qdrant_industrial (qdrant/qdrant:v1.9.0):</strong> Puertos 6333 (HTTP) y 6334 (gRPC). Volumen persistente <span class="code-tag">qdrant_data</span>. Health check cada 10s. Restart always.</li>
+          <li><strong>redis_industrial (redis/redis-stack:7.2.0):</strong> Puerto 6379 + 8001 (RedisInsight dashboard). Soporte vectorial indexado mediante HNSW. Contraseña segura configurada.</li>
+        </ul>
+        <p>Iniciar con: <span class="code-tag">docker-compose up -d</span> y verificar conectividad antes de re-factorizar los scripts de Fases 1–5.</p>`
+      }
+    ]
+  },
+
+  fastapi: {
+    badge: { text: 'Ruta 2 · Próximos Pasos', color: '#0ea5e9', bg: 'rgba(14,165,233,.15)' },
+    title: 'API de Inferencia (FastAPI) & Dashboard Industrial',
+    intro: 'Para que el personal de planta e ingeniería interactúe con el sistema, se construye una capa de microservicio API ligera con autenticación por API Key y un dashboard visual en modo oscuro industrial.',
+    sections: [
+      {
+        icon: '🌐', title: 'Endpoints FastAPI', color: '#0ea5e9',
+        content: `<ul>
+          <li><strong>POST /api/v1/query:</strong> Valida X-API-KEY, recibe <span class="code-tag">query</span>, <span class="code-tag">project</span> y <span class="code-tag">role_clearance</span>, ejecuta el pipeline agéntico completo y retorna respuesta con citas y fuente (cache_hit / llm_inference).</li>
+          <li><strong>Seguridad:</strong> APIKeyHeader middleware + CORS configurado para integración con frontend.</li>
+          <li><strong>Contratos Pydantic:</strong> UserQueryRequest + QueryResponse con Citations tipadas.</li>
+        </ul>`
+      },
+      {
+        icon: '🖥️', title: 'Dashboard Premium UI', color: '#8b5cf6',
+        content: `<p>Diseño industrial en modo oscuro con paleta ámbar (#ffb800), alertas rojo (#ff4a4a) y tipografía Space Grotesk. Incluye:</p>
+        <ul>
+          <li>Indicador de estado en tiempo real (punto verde parpadeante)</li>
+          <li>Selector de proyecto y nivel de clearance</li>
+          <li>Respuestas con citas bibliográficas inline</li>
+          <li>Indicador de fuente: CACHE HIT vs. LLM INFERENCE con nivel de confianza</li>
+        </ul>`
+      }
+    ]
+  },
+
+  langgraph: {
+    badge: { text: 'Ruta 3 · MÓDULO 10', color: '#0ea5e9', bg: 'rgba(14,165,233,.15)' },
+    title: 'Evolución a LangGraph — Orquestación Agéntica con Grafo de Estado',
+    intro: 'Los scripts de la Fase 4 implementan un enrutador estático. La evolución natural es migrar a un StateGraph de LangGraph que permite memoria persistente de conversación, ciclos de retroalimentación y Human-in-the-Loop para decisiones críticas de seguridad.',
+    sections: [
+      {
+        icon: '🕸️', title: 'Nodos del Grafo Agéntico', color: '#0ea5e9',
+        content: `
+        <div class="flow-chips">
+          <div class="flow-chip">check_cache</div><div class="flow-chip-arrow">→</div>
+          <div class="flow-chip">router_agent</div><div class="flow-chip-arrow">→</div>
+          <div class="flow-chip">retrieval_node</div><div class="flow-chip-arrow">→</div>
+          <div class="flow-chip">generator_node</div><div class="flow-chip-arrow">→</div>
+          <div class="flow-chip">guard_node</div><div class="flow-chip-arrow">→</div>
+          <div class="flow-chip">END / FAILSAFE</div>
+        </div>
+        <p style="margin-top:.8rem">El <strong>AgentState</strong> (TypedDict) persiste: query, project, role_clearance, route_decision, retrieved_contexts, final_response y faithfulness_score a lo largo de toda la conversación.</p>`
+      },
+      {
+        icon: '🔁', title: 'Ventajas del Grafo vs. Pipeline Estático', color: '#8b5cf6',
+        content: `<ul>
+          <li><strong>Memoria persistente:</strong> El operario puede hacer preguntas de seguimiento ("¿Y qué hago si no responde al apagado?") manteniendo contexto de la conversación.</li>
+          <li><strong>Human-in-the-Loop:</strong> Si el agente detecta un conflicto en directivas de seguridad I+D, pausa la ejecución y solicita aprobación de un supervisor antes de responder.</li>
+          <li><strong>Aristas condicionales:</strong> Cache HIT → END directo; Cache MISS → router; Faithfulness &lt;0.95 → FAILSAFE; Faithfulness ≥0.95 → respuesta validada.</li>
+        </ul>`
+      }
+    ]
+  }
+};
+
+// ─── Render panel ─────────────────────────────────────────────────────────────
+function openPanel(key) {
+  const data = panels[key];
+  if (!data) return;
+
+  // Highlight active node
+  document.querySelectorAll('.node.active').forEach(n => n.classList.remove('active'));
+  const nodeEl = document.getElementById('node-' + key);
+  if (nodeEl) nodeEl.classList.add('active');
+
+  let html = `
+    <div class="panel-badge" style="background:${data.badge.bg};color:${data.badge.color};border:1px solid ${data.badge.color}40">
+      ${data.badge.text}
+    </div>
+    <h2>${data.title}</h2>
+    <div class="panel-intro">${data.intro}</div>
+  `;
+
+  data.sections.forEach(sec => {
+    html += `<h3 style="color:${sec.color}"><span style="display:inline-block;width:4px;height:14px;border-radius:4px;background:${sec.color};margin-right:8px"></span>${sec.icon} ${sec.title}</h3>`;
+    html += sec.content;
+  });
+
+  document.getElementById('panel-content').innerHTML = html;
+  document.getElementById('overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closePanel() {
+  document.getElementById('overlay').classList.remove('open');
+  document.body.style.overflow = '';
+  document.querySelectorAll('.node.active').forEach(n => n.classList.remove('active'));
+}
+
+function closeOnOverlay(e) {
+  if (e.target === document.getElementById('overlay')) closePanel();
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closePanel(); });
+</script>
+</body>
+</html>

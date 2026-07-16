@@ -1,0 +1,7 @@
+google-genai
+python-dotenv
+openai
+qdrant-client
+sentence-transformers
+fastapi
+uvicorn

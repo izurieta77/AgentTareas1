@@ -1,0 +1,42 @@
+[
+  {
+    "question": "¿Cuál es la latencia típica de conversión del AD4086 y su resolución de bits?",
+    "ground_truth": "El AD4086 ofrece una resolución de 14 bits con una latencia típica de conversión de 48.21 ns."
+  },
+  {
+    "question": "¿Cuál es el consumo de potencia típico del AD4086 cuando funciona a una velocidad de muestreo de 40 MSPS?",
+    "ground_truth": "El consumo de potencia típico del AD4086 es de 85 mW operando a una velocidad de 40 MSPS."
+  },
+  {
+    "question": "¿Cuál es la profundidad de muestra (sample depth) del FIFO de resultados de conversión integrado en el AD4086?",
+    "ground_truth": "El FIFO de resultados de conversión integrado posee una profundidad de 16K muestras."
+  },
+  {
+    "question": "¿Cuáles son las especificaciones típicas de INL y DNL para el AD4086?",
+    "ground_truth": "El INL típico del AD4086 es de ±12 ppm y el DNL típico es de ±0.063 LSB."
+  },
+  {
+    "question": "¿Qué funcionalidad tienen los pines B4 y B5 en el AD4086 y qué tipo de señal manejan?",
+    "ground_truth": "Los pines B4 y B5 corresponden a DCO- y DCO+, y funcionan como salidas de reloj de eco LVDS (LVDS Echo Clock Outputs) en el dominio de alimentación IOVDD."
+  },
+  {
+    "question": "¿Cuál es el rango de voltaje aceptable para la entrada del regulador LDO (pin VDDLDO) en el AD4086?",
+    "ground_truth": "El rango de voltaje aceptable de entrada para la patilla LDO (VDDLDO) está entre 1.4 V y 2.7 V."
+  },
+  {
+    "question": "¿Qué valor nominal de capacitancia de desacoplo interno se incorpora para los pines de alimentación del núcleo VDD11?",
+    "ground_truth": "Los pines de alimentación del núcleo VDD11 están desacoplados internamente mediante cuatro condensadores de 470 nF a GND."
+  },
+  {
+    "question": "¿Cuál es el ancho de banda a -3dB especificado para las entradas analógicas del AD4086 sin filtro externo?",
+    "ground_truth": "El ancho de banda analógico a -3dB sin usar filtros externos es de 272 MHz."
+  },
+  {
+    "question": "¿Qué rango de temperatura de funcionamiento soporta la extrusora del Proyecto Helios?",
+    "ground_truth": "INFORMACIÓN NO DISPONIBLE EN EL CORPUS DE SEGURIDAD"
+  },
+  {
+    "question": "¿Cuál es el límite absoluto de torque admisible para el acople de la extrusora Line-3 en el manual V2?",
+    "ground_truth": "INFORMACIÓN NO DISPONIBLE EN EL CORPUS DE SEGURIDAD"
+  }
+]
